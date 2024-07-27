@@ -1,12 +1,35 @@
 TARGET   = LibTiff
 TEMPLATE = lib
 
-CONFIG += staticlib
+CONFIG += staticlib c++1z
+
+DEFINES = \
+    _CRT_SECURE_NO_DEPRECATE=1 \
+    AVOID_WIN32_FILEIO=1 \
+    CHECK_JPEG_YCBCR_SUBSAMPLING=1 \
+    DEFAULT_EXTRASAMPLE_AS_ALPHA=1 \
+    STRIPCHOP_DEFAULT=TIFF_STRIPCHOP \
+    STRIP_SIZE_DEFAULT=8192 \
+    PIXARLOG_SUPPORT=1 \
+    ZIP_SUPPORT=1 \
+    LOGLUV_SUPPORT=1 \
+    NEXT_SUPPORT=1 \
+    THUNDER_SUPPORT=1 \
+    LZW_SUPPORT=1 \
+    PACKBITS_SUPPORT=1 \
+    CCITT_SUPPORT=1 \
+    TIF_PLATFORM_CONSOLE=1 \
+    FILLODER_LSB2MSB=1
 
 #
 # Конфигурируем расположение файлов сборки
 #
-DESTDIR = ../../../../_build/libs
+DESTDIR = ../../../_build/libs
+
+#
+# Подключаем библиотеку Zlib
+#
+mac:LIBS += -lz
 
 HEADERS += \
     t4.h \

@@ -3,16 +3,15 @@ TEMPLATE = lib
 
 CONFIG += staticlib
 
-LIBSDIR = ../../../../_build/libs
-
-LIBS += -L$$LIBSDIR/ -lZlib
-INCLUDEPATH += $$PWD/../Zlib
-DEPENDPATH += $$PWD/../Zlib
+#
+# Подключаем библиотеку Zlib
+#
+mac:LIBS += -lz
 
 #
 # Конфигурируем расположение файлов сборки
 #
-DESTDIR = ../../../../_build/libs
+DESTDIR = ../../../_build/libs
 
 HEADERS += \
     png.h \

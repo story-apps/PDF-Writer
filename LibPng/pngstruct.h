@@ -27,7 +27,14 @@
    /* We must ensure that zlib uses 'const' in declarations. */
 #  define ZLIB_CONST
 #endif
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
+
 #ifdef const
    /* zlib.h sometimes #defines const to nothing, undo this. */
 #  undef const

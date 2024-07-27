@@ -88,7 +88,13 @@
  */
 
 #include "tif_predict.h"
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 #include <math.h>
 #include <stdio.h>

@@ -38,7 +38,13 @@
  * For scanline access, zlib will be sued as a fallback.
  */
 #include "tif_predict.h"
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 #if LIBDEFLATE_SUPPORT
 #include "libdeflate.h"

@@ -6,7 +6,7 @@ CONFIG += staticlib
 #
 # Конфигурируем расположение файлов сборки
 #
-DESTDIR = ../../../../_build/libs
+DESTDIR = ../../../_build/libs
 
 HEADERS += \
     jconfig.h \

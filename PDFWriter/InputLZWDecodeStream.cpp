@@ -21,7 +21,13 @@
 #include "InputLZWDecodeStream.h"
 
 #include "Trace.h"
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 
 InputLZWDecodeStream::InputLZWDecodeStream(int early)
@@ -68,7 +74,7 @@ void InputLZWDecodeStream::StartEncoding()
 	ClearTable();
 }
 
-IOBasicTypes::LongBufferSizeType InputLZWDecodeStream::Read(IOBasicTypes::Byte* inBuffer, IOBasicTypes::LongBufferSizeType inBufferSize)
+IOBasicTypes::LongBufferSizeType InputLZWDecodeStream::Read(Byte* inBuffer, IOBasicTypes::LongBufferSizeType inBufferSize)
 {
 	if (mCurrentlyEncoding)
 	{
@@ -186,7 +192,7 @@ int InputLZWDecodeStream::GetCode() {
 	int c;
 	int code;
 
-	IOBasicTypes::Byte buffer;
+    Byte buffer;
 	while (inputBits < nextBits) 
 	{
 		mSourceStream->Read(&buffer, 1);
