@@ -22,7 +22,13 @@
 #ifndef NO_TRACE
 #include "Trace.h"
 #endif
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 #define BUFFER_SIZE 256*1024
 
@@ -30,7 +36,7 @@ using namespace IOBasicTypes;
 
 OutputFlateDecodeStream::OutputFlateDecodeStream(void)
 {
-	mBuffer = new IOBasicTypes::Byte[BUFFER_SIZE];
+    mBuffer = new Byte[BUFFER_SIZE];
 	mZLibState = new z_stream;
 	mTargetStream = NULL;
 	mCurrentlyEncoding = false;
@@ -55,7 +61,7 @@ void OutputFlateDecodeStream::FinalizeEncoding()
 
 OutputFlateDecodeStream::OutputFlateDecodeStream(IByteWriter* inTargetWriter, bool inInitiallyOn)
 {
-	mBuffer = new IOBasicTypes::Byte[BUFFER_SIZE];
+    mBuffer = new Byte[BUFFER_SIZE];
 	mZLibState = new z_stream;
 	mTargetStream = NULL;
 	mCurrentlyEncoding = false;
@@ -94,7 +100,7 @@ void OutputFlateDecodeStream::Assign(IByteWriter* inWriter,bool inInitiallyOn)
 }
 
 
-LongBufferSizeType OutputFlateDecodeStream::Write(const IOBasicTypes::Byte* inBuffer,LongBufferSizeType inSize)
+LongBufferSizeType OutputFlateDecodeStream::Write(const Byte* inBuffer,LongBufferSizeType inSize)
 {
 	if(mCurrentlyEncoding)
 		return DecodeBufferAndWrite(inBuffer,inSize);
@@ -104,7 +110,7 @@ LongBufferSizeType OutputFlateDecodeStream::Write(const IOBasicTypes::Byte* inBu
 		return 0;
 }
 
-LongBufferSizeType OutputFlateDecodeStream::DecodeBufferAndWrite(const IOBasicTypes::Byte* inBuffer,LongBufferSizeType inSize)
+LongBufferSizeType OutputFlateDecodeStream::DecodeBufferAndWrite(const Byte* inBuffer,LongBufferSizeType inSize)
 {
 	if(0 == inSize)
 		return 0; // inflate kinda touchy about getting 0 lengths

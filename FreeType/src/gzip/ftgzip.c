@@ -42,7 +42,12 @@
 
 #ifdef FT_CONFIG_OPTION_SYSTEM_ZLIB
 
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
 #include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 #else /* !FT_CONFIG_OPTION_SYSTEM_ZLIB */
 

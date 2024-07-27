@@ -21,7 +21,13 @@
 #include "InputFlateDecodeStream.h"
 
 #include "Trace.h"
-#include "zlib.h"
+
+#include <qplatformdefs.h>
+#ifndef Q_OS_WIN
+#include <zlib.h>
+#else
+#include <QtZlib/zlib.h>
+#endif
 
 
 InputFlateDecodeStream::InputFlateDecodeStream(void)
@@ -94,7 +100,7 @@ static bool isError(int inflateResult)
 	}
 }
 
-IOBasicTypes::LongBufferSizeType InputFlateDecodeStream::Read(IOBasicTypes::Byte* inBuffer,IOBasicTypes::LongBufferSizeType inBufferSize)
+IOBasicTypes::LongBufferSizeType InputFlateDecodeStream::Read(Byte* inBuffer,IOBasicTypes::LongBufferSizeType inBufferSize)
 {
 	if(mCurrentlyEncoding)
 		return DecodeBufferAndRead(inBuffer,inBufferSize);
@@ -104,7 +110,7 @@ IOBasicTypes::LongBufferSizeType InputFlateDecodeStream::Read(IOBasicTypes::Byte
 		return 0;
 }
 
-IOBasicTypes::LongBufferSizeType InputFlateDecodeStream::DecodeBufferAndRead(const IOBasicTypes::Byte* inBuffer,IOBasicTypes::LongBufferSizeType inSize)
+IOBasicTypes::LongBufferSizeType InputFlateDecodeStream::DecodeBufferAndRead(const Byte* inBuffer,IOBasicTypes::LongBufferSizeType inSize)
 {
 	if(0 == inSize || mEndOfCompressionEoncountered)
 		return 0; // inflate kinda touchy about getting 0 lengths, also stop if already decided to finish

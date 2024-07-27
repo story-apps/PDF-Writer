@@ -2,9 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     PDFWriter \
-#    FreeType \
+    FreeType \
     LibAesgm \
     LibJpeg \
     LibPng \
-    LibTiff \
-    Zlib
+    LibTiff

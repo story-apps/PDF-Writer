@@ -3,10 +3,10 @@ TEMPLATE = lib
 
 CONFIG += staticlib
 
-LIBSDIR = ../../../../_build/libs
+LIBSDIR = ../../../_build/libs
 
 
-LIBS += -L$$PWD/../../../ -lFreeType
+LIBS += -L$$LIBSDIR/ -lFreeType
 INCLUDEPATH += $$PWD/../FreeType/include
 DEPENDPATH += $$PWD/../FreeType/include
 
@@ -26,14 +26,15 @@ LIBS += -L$$LIBSDIR/ -lLibTiff
 INCLUDEPATH += $$PWD/../LibTiff
 DEPENDPATH += $$PWD/../LibTiff
 
-LIBS += -L$$LIBSDIR/ -lZlib
-INCLUDEPATH += $$PWD/../Zlib
-DEPENDPATH += $$PWD/../Zlib
+#
+# Подключаем библиотеку Zlib
+#
+mac:LIBS += -lz
 
 #
 # Конфигурируем расположение файлов сборки
 #
-DESTDIR = ../../../../_build/libs
+DESTDIR = ../../../_build/libs
 
 HEADERS += \
     AbstractContentContext.h \
