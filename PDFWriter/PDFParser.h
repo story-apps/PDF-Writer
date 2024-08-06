@@ -172,6 +172,7 @@ public:
     LongFilePositionType GetXrefPosition();
     
     IByteReaderWithPosition* GetParserStream();
+    std::string GetBaseFontName(const PDFName *inFontName) const;
     
 private:
 	PDFObjectParser mObjectParser;
@@ -198,6 +199,7 @@ private:
 	ObjectIDType* mPagesObjectIDs;
 	IPDFParserExtender* mParserExtender;
     bool mAllowExtendingSegments;
+    std::map<std::string, std::string> mapFontNameToBaseFontName;
 
 	PDFHummus::EStatusCode ParseHeaderLine();
 	PDFHummus::EStatusCode ParseEOFLine();
@@ -215,6 +217,7 @@ private:
 	PDFObject*  ParseExistingInDirectObject(ObjectIDType inObjectID);
 	PDFHummus::EStatusCode SetupDecryptionHelper(const std::string& inPassword);
 	PDFHummus::EStatusCode ParsePagesObjectIDs();
+    PDFHummus::EStatusCode ParseFontsFormats(PDFDictionary* inPageNode);
 	PDFHummus::EStatusCode ParsePagesIDs(PDFDictionary* inPageNode,ObjectIDType inNodeObjectID);
 	PDFHummus::EStatusCode ParsePagesIDs(PDFDictionary* inPageNode,ObjectIDType inNodeObjectID,unsigned long& ioCurrentPageIndex, PDFParsingPath& ioParsingPath);
 	PDFHummus::EStatusCode ParsePreviousXrefs(PDFDictionary* inTrailer);
