@@ -891,6 +891,38 @@ EStatusCode PDFParser::ParsePagesObjectIDs()
 	return status;
 }
 
+EStatusCode PDFParser::ParseFontsFormats(PDFDictionary* inPageNode)
+{
+    EStatusCode status = PDFHummus::eSuccess;
+    do {
+        PDFObjectCastPtr<PDFDictionary> resources(QueryDictionaryObject(inPageNode, "Resources"));
+        if(!resources)
+        {
+            TRACE_LOG("PDFParser::ParseFontsFormats, failed to read page resources");
+            status = PDFHummus::eFailure;
+            break;
+        }
+
+        PDFObjectCastPtr<PDFDictionary> fonts(QueryDictionaryObject(resources.GetPtr(), "Font"));
+        if(!fonts)
+        {
+            TRACE_LOG("PDFParser::ParseFontsFormats, failed to read page resources");
+            status = PDFHummus::eFailure;
+            break;
+        }
+        MapIterator<PDFNameToPDFObjectMap> it = fonts->GetIterator();
+        while(it.MoveNext() && PDFHummus::eSuccess == status)
+        {
+            PDFName *fontName = it.GetKey();
+            PDFObjectCastPtr<PDFDictionary> font(ParseNewObject(((PDFIndirectObjectReference*)it.GetValue())->mObjectID));
+            PDFName *baseFontName = (PDFName*)QueryDictionaryObject(font.GetPtr(), "BaseFont");
+            mapFontNameToBaseFontName.insert({fontName->GetValue(), baseFontName->GetValue()});
+        }
+    } while (false);
+
+    return status;
+}
+
 EStatusCode PDFParser::ParsePagesIDs(PDFDictionary* inPageNode,ObjectIDType inNodeObjectID)
 {
 	unsigned long currentPageIndex = 0;
@@ -942,6 +974,7 @@ EStatusCode PDFParser::ParsePagesIDs(
 
 			mPagesObjectIDs[ioCurrentPageIndex] = inNodeObjectID;
 			++ioCurrentPageIndex;
+            ParseFontsFormats(inPageNode);
 		}
 		else if(scPages == objectType->GetValue())
 		{
@@ -2302,6 +2335,16 @@ LongFilePositionType PDFParser::GetXrefPosition()
 IByteReaderWithPosition* PDFParser::GetParserStream()
 {
     return &mStream;
+}
+
+std::string PDFParser::GetBaseFontName(const PDFName *inFontName) const
+{
+    const auto search = mapFontNameToBaseFontName.find(inFontName->GetValue());
+    if (search == mapFontNameToBaseFontName.end()) {
+        return "";
+    } else {
+        return search->second;
+    }
 }
 
 
