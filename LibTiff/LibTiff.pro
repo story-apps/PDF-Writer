@@ -21,6 +21,8 @@ DEFINES = \
     TIF_PLATFORM_CONSOLE=1 \
     FILLODER_LSB2MSB=1
 
+mac:DEFINES += HAVE_UNISTD_H=1
+
 #
 # Конфигурируем расположение файлов сборки
 #
