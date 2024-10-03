@@ -31,6 +31,7 @@
 #include "PDFIndirectObjectReference.h"
 #include "PDFName.h"
 #include "PDFArray.h"
+#include "PDFReal.h"
 #include "RefCountPtr.h"
 #include "PDFObjectCast.h"
 #include "PDFStreamInput.h"
@@ -906,7 +907,7 @@ EStatusCode PDFParser::ParseFontsFormats(PDFDictionary* inPageNode)
         PDFObjectCastPtr<PDFDictionary> fonts(QueryDictionaryObject(resources.GetPtr(), "Font"));
         if(!fonts)
         {
-            TRACE_LOG("PDFParser::ParseFontsFormats, failed to read page resources");
+            TRACE_LOG("PDFParser::ParseFontsFormats, failed to read fonts");
             status = PDFHummus::eFailure;
             break;
         }
@@ -915,8 +916,52 @@ EStatusCode PDFParser::ParseFontsFormats(PDFDictionary* inPageNode)
         {
             PDFName *fontName = it.GetKey();
             PDFObjectCastPtr<PDFDictionary> font(ParseNewObject(((PDFIndirectObjectReference*)it.GetValue())->mObjectID));
+            if (!font) {
+                continue;
+            }
             PDFName *baseFontName = (PDFName*)QueryDictionaryObject(font.GetPtr(), "BaseFont");
+            if (!baseFontName) {
+                continue;
+            }
             mapFontNameToBaseFontName.insert({fontName->GetValue(), baseFontName->GetValue()});
+        }
+    } while (false);
+
+    return status;
+}
+
+EStatusCode PDFParser::ParseGraphicsStates(PDFDictionary* inPageNode)
+{
+    EStatusCode status = PDFHummus::eSuccess;
+    do {
+        PDFObjectCastPtr<PDFDictionary> resources(QueryDictionaryObject(inPageNode, "Resources"));
+        if(!resources)
+        {
+            TRACE_LOG("PDFParser::ParseGraphicsStates, failed to read page resources");
+            status = PDFHummus::eFailure;
+            break;
+        }
+
+        PDFObjectCastPtr<PDFDictionary> graphicsStates(QueryDictionaryObject(resources.GetPtr(), "ExtGState"));
+        if(!graphicsStates)
+        {
+            TRACE_LOG("PDFParser::ParseGraphicsStates, failed to read graphics states");
+            status = PDFHummus::eFailure;
+            break;
+        }
+        MapIterator<PDFNameToPDFObjectMap> it = graphicsStates->GetIterator();
+        while(it.MoveNext() && PDFHummus::eSuccess == status)
+        {
+            PDFName *graphicsStateName = it.GetKey();
+            PDFObjectCastPtr<PDFDictionary> graphicsState(ParseNewObject(((PDFIndirectObjectReference*)it.GetValue())->mObjectID));
+            if (!graphicsState) {
+                continue;
+            }
+            PDFReal *constantAlpha = (PDFReal*)QueryDictionaryObject(graphicsState.GetPtr(), "ca");
+            if (!constantAlpha) {
+                continue;
+            }
+            mapGraphicsStateToConstantAlpha.insert({graphicsStateName->GetValue(), constantAlpha->GetValue()});
         }
     } while (false);
 
@@ -975,6 +1020,7 @@ EStatusCode PDFParser::ParsePagesIDs(
 			mPagesObjectIDs[ioCurrentPageIndex] = inNodeObjectID;
 			++ioCurrentPageIndex;
             ParseFontsFormats(inPageNode);
+            ParseGraphicsStates(inPageNode);
 		}
 		else if(scPages == objectType->GetValue())
 		{
@@ -2347,9 +2393,12 @@ std::string PDFParser::GetBaseFontName(const PDFName *inFontName) const
     }
 }
 
-
-
-
-
-
-
+double PDFParser::GetConstantAplha(const PDFName *inGraphicsState) const
+{
+    const auto search = mapGraphicsStateToConstantAlpha.find(inGraphicsState->GetValue());
+    if (search == mapGraphicsStateToConstantAlpha.end()) {
+        return 1;
+    } else {
+        return search->second;
+    }
+}
