@@ -173,7 +173,7 @@ public:
     
     IByteReaderWithPosition* GetParserStream();
     std::string GetBaseFontName(const PDFName *inFontName) const;
-    double GetConstantAplha(const PDFName *inGraphicsState) const;
+    double GetConstantAplha(const std::string& inGsName) const;
     
 private:
 	PDFObjectParser mObjectParser;

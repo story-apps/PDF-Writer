@@ -2393,9 +2393,9 @@ std::string PDFParser::GetBaseFontName(const PDFName *inFontName) const
     }
 }
 
-double PDFParser::GetConstantAplha(const PDFName *inGraphicsState) const
+double PDFParser::GetConstantAplha(const std::string& inGsName) const
 {
-    const auto search = mapGraphicsStateToConstantAlpha.find(inGraphicsState->GetValue());
+    const auto search = mapGraphicsStateToConstantAlpha.find(inGsName);
     if (search == mapGraphicsStateToConstantAlpha.end()) {
         return 1;
     } else {
