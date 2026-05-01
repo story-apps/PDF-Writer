@@ -10,9 +10,38 @@ LIBS += -L$$LIBSDIR/ -lFreeType
 INCLUDEPATH += $$PWD/../FreeType/include
 DEPENDPATH += $$PWD/../FreeType/include
 
-LIBS += -L$$LIBSDIR/ -lLibAesgm
-INCLUDEPATH += $$PWD/../LibAesgm
-DEPENDPATH += $$PWD/../LibAesgm
+#
+# Включаем AES из OpenSSL для поддержки PDF 2.0
+#
+DEFINES += USE_OPENSSL_AES=1
+
+#
+# Подключаем библиотеку OpenSSL
+#
+linux {
+    LIBS += -lcrypto
+}
+macx {
+    OPENSSL_PREFIX = $$(OPENSSL_PREFIX)
+    isEmpty(OPENSSL_PREFIX): OPENSSL_PREFIX = /opt/homebrew/opt/openssl@3
+    !exists($$OPENSSL_PREFIX/include/openssl/evp.h): OPENSSL_PREFIX = /opt/homebrew/opt/openssl
+    !exists($$OPENSSL_PREFIX/include/openssl/evp.h): OPENSSL_PREFIX = /usr/local/opt/openssl@3
+    !exists($$OPENSSL_PREFIX/include/openssl/evp.h): OPENSSL_PREFIX = /usr/local/opt/openssl
+    INCLUDEPATH += $$OPENSSL_PREFIX/include
+    LIBS += -L$$OPENSSL_PREFIX/lib -lcrypto
+}
+win32 {
+    OPENSSL_PREFIX = $$OPENSSL_DIR
+    isEmpty(OPENSSL_PREFIX) {
+        contains(QMAKE_TARGET.arch, x86_64)|contains(QT_ARCH, x86_64) {
+            OPENSSL_PREFIX = "C:/Program Files/OpenSSL"
+        } else {
+            OPENSSL_PREFIX = "C:/Program Files (x86)/OpenSSL-Win32"
+        }
+    }
+    INCLUDEPATH += $$OPENSSL_PREFIX/include
+    LIBS += -L$$OPENSSL_PREFIX/lib -llibcrypto
+}
 
 LIBS += -L$$LIBSDIR/ -lLibJpeg
 INCLUDEPATH += $$PWD/../LibJpeg
@@ -40,11 +69,15 @@ HEADERS += \
     AbstractContentContext.h \
     AbstractWrittenFont.h \
     AdapterIByteReaderWithPositionToIReadPositionProvider.h \
+    AESConstants.h \
     ANSIFontWriter.h \
     Ascii7Encoding.h \
     ArrayOfInputStreamsStream.h \
     BetweenIncluding.h \
     BoxingBase.h \
+    ByteList.h \
+    ByteListSSOImpl.h \
+    ByteListVectorImpl.h \
     CatalogInformation.h \
     CFFANSIFontWriter.h \
     CFFDescendentFontWriter.h \
@@ -86,6 +119,7 @@ HEADERS += \
     GraphicState.h \
     GraphicStateStack.h \
     IANSIFontWriterHelper.h \
+    IByteListImpl.h \
     IByteReader.h \
     IByteReaderWithPosition.h \
     IByteWriter.h \
@@ -100,7 +134,7 @@ HEADERS += \
     IFreeTypeFaceExtender.h \
     IndirectObjectsReferenceRegistry.h \
     InfoDictionary.h \
-    InputAESDecodeStream.h \
+    InputAESDecodeStreamSSL.h \
     InputAscii85DecodeStream.h \
     InputAsciiHexDecodeStream.h \
     InputBufferedStream.h \
@@ -145,7 +179,7 @@ HEADERS += \
     ObjectsContextExtenderAdapter.h \
     OpenTypeFileInput.h \
     OpenTypePrimitiveReader.h \
-    OutputAESEncodeStream.h \
+    OutputAESEncodeStreamSSL.h \
     OutputBufferedStream.h \
     OutputFile.h \
     OutputFileStream.h \
@@ -241,6 +275,8 @@ HEADERS += \
     WrittenFontRepresentation.h \
     WrittenFontTrueType.h \
     XCryptionCommon.h \
+    XCryptionCommon2_0.h \
+    XCryptor.h \
     XObjectContentContext.h \
 
 SOURCES += \
@@ -249,6 +285,9 @@ SOURCES += \
     ANSIFontWriter.cpp \
     Ascii7Encoding.cpp \
     ArrayOfInputStreamsStream.cpp \
+    ByteList.cpp \
+    ByteListSSOImpl.cpp \
+    ByteListVectorImpl.cpp \
     CatalogInformation.cpp \
     CFFANSIFontWriter.cpp \
     CFFDescendentFontWriter.cpp \
@@ -279,7 +318,7 @@ SOURCES += \
     GraphicStateStack.cpp \
     IndirectObjectsReferenceRegistry.cpp \
     InfoDictionary.cpp \
-    InputAESDecodeStream.cpp \
+    InputAESDecodeStreamSSL.cpp \
     InputAscii85DecodeStream.cpp \
     InputAsciiHexDecodeStream.cpp \
     InputBufferedStream.cpp \
@@ -310,7 +349,7 @@ SOURCES += \
     ObjectsContext.cpp \
     OpenTypeFileInput.cpp \
     OpenTypePrimitiveReader.cpp \
-    OutputAESEncodeStream.cpp \
+    OutputAESEncodeStreamSSL.cpp \
     OutputBufferedStream.cpp \
     OutputFile.cpp \
     OutputFileStream.cpp \
@@ -398,5 +437,7 @@ SOURCES += \
     WrittenFontCFF.cpp \
     WrittenFontTrueType.cpp \
     XCryptionCommon.cpp \
+    XCryptionCommon2_0.cpp \
+    XCryptor.cpp \
     XObjectContentContext.cpp \
 
